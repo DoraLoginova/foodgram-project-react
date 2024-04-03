@@ -9,7 +9,7 @@ class User(AbstractUser):
     last_name = models.CharField('Фамилия', max_length=150)
     username = models.CharField(unique=True, max_length=150,
                                 validators=[validators.RegexValidator(
-                                    r'^[\w.@+-]+\Z',
+                                    r'^[\w.@+-]+\Z', 
                                     'Введите правильный юзернейм.'),],
                                 verbose_name='Уникальный юзернейм',)
     password = models.CharField('Пароль', max_length=150)

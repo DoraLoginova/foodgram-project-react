@@ -1,4 +1,5 @@
 import base64
+
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import F
@@ -199,8 +200,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         if not ingredients:
             raise ValidationError({
-                    'ingredients': 'Нужен хотя бы один ингредиент!'
-                })
+                'ingredients': 'Нужен хотя бы один ингредиент!'
+            })
         for item in ingredients:
             if int(item['amount']) < 1:
                 raise serializers.ValidationError({

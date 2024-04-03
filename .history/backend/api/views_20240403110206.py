@@ -154,8 +154,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         ingredients = RecipeIngredient.objects.filter(
             recipe__shopping_cart__author=request.user).values(
-                'ingredient__name',
-                'ingredient__measurement_unit').annotate(amount=Sum('amount'))
+                'ingredient__name', 'ingredient__measurement_unit'
+            ).annotate(amount=Sum('amount'))
         today = datetime.today()
         shopping_list = (f'Список покупок для: {user.get_full_name()}\n\n'
                          f'Дата: {today:%Y-%m-%d}\n\n')
