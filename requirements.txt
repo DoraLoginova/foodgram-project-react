@@ -16,5 +16,4 @@ pytz>=2023.3
 reportlab>=4.0.4
 sqlparse>=0.4.4
 python-dotenv>=1.0.0
-djoser==2.1.0
-drf-extra-fields==3.4.0
+djoser>=2.2.0
