@@ -44,13 +44,13 @@ jobs:
         with:
           context: ./backend/
           push: true
-          tags: olgau/foodgram_backend:latest
+          tags: doralog/foodgram_backend:latest
       - name: Push to DockerHub frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend/
           push: true
-          tags: olgau/foodgram_frontend:latest
+          tags: doralog/foodgram_frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
