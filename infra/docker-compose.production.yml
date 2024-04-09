@@ -12,7 +12,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
-    image: doralog/foodgram-backend:latest
+    image: doralog/foodgram_backend:latest
     env_file: .env
     volumes:
       - static:/backend_static
@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
   frontend:
-    image: doralog/foodgram-frontend:latest
+    image: doralog/foodgram_frontend:latest
     volumes:
       - static:/static
   nginx:
