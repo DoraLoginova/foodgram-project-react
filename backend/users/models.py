@@ -1,25 +1,34 @@
 from django.contrib.auth.models import AbstractUser
-from django.core import validators
 from django.db import models
+from django.core import validators
 
 
 class User(AbstractUser):
-    email = models.EmailField('Адрес электронной почты',
-                              unique=True, max_length=254)
-    username = models.CharField('Уникальный юзернейм',
-                                unique=True, max_length=150,
-                                validators=[
-                                    validators.RegexValidator(
-                                        r'^[\w.@+-]+\Z',
-                                        'Введите правильный юзернейм.')])
-    first_name = models.CharField('Имя', max_length=150)
-    last_name = models.CharField('Фамилия', max_length=150)
-    password = models.CharField('Пароль', max_length=150)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'id',
+        'username',
+        'first_name',
+        'last_name',
+    ]
+    email = models.EmailField('email address', max_length=254,
+                              unique=True,)
+    username = models.CharField(
+        max_length=150, unique=True,
+        validators=[
+            validators.RegexValidator(
+                r'^[\w.@+-]+\Z', 'Введите правильный юзернейм.', 'invalid'
+            ),
+        ],
+        verbose_name='Уникальный юзернейм',)
+    first_name = models.CharField(max_length=150,)
+    last_name = models.CharField(max_length=150,)
+    password = models.CharField(max_length=150,)
 
     class Meta:
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('id',)
 
     def __str__(self):
         return self.username

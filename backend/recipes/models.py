@@ -1,10 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.core import validators
 from django.db import models
 from django.db.models import UniqueConstraint
 
-
-User = get_user_model()
+from users.models import User
 
 
 class Tag(models.Model):
@@ -52,7 +50,7 @@ class Recipe(models.Model):
                                on_delete=models.SET_NULL,
                                null=True,
                                verbose_name='Автор')
-    name = models.CharField('Название рецепта', max_length=255)
+    name = models.CharField('Название рецепта', max_length=200)
     image = models.ImageField('Изображение', upload_to='recipes/',
                               blank=True, null=True)
     text = models.TextField('Описание рецепта')
@@ -73,7 +71,7 @@ class Recipe(models.Model):
         ordering = ('-id', )
 
     def __str__(self):
-        return f'{self.author.email}, {self.name}'
+        return f'{self.name}'
 
 
 class RecipeIngredient(models.Model):
