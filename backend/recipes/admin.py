@@ -1,8 +1,16 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
-from .models import (FavoriteRecipe, Ingredient, Recipe,
-                     RecipeIngredient,
-                     ShoppingCart, Tag)
+from recipes.models import (
+    FavoriteRecipe,
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    ShoppingCart,
+    Tag
+)
+
+admin.site.unregister(Group)
 
 
 class RecipeIngredientAdmin(admin.StackedInline):
@@ -14,10 +22,12 @@ class RecipeIngredientAdmin(admin.StackedInline):
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'name', 'text', 'author',
-        'cooking_time', 'get_tags', 'added_in_favorites')
+        'cooking_time', 'get_tags', 'added_in_favorites',
+    )
     search_fields = (
         'name', 'cooking_time',
-        'author__email', 'ingredients__name')
+        'author__email', 'ingredients__name',
+    )
     list_filter = ('name', 'tags',)
     inlines = (RecipeIngredientAdmin,)
     empty_value_display = '-пусто-'
@@ -42,19 +52,21 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'measurement_unit',)
+        'id', 'name', 'measurement_unit',
+    )
     search_fields = (
-        'name', 'measurement_unit',)
+        'name', 'measurement_unit',
+    )
     empty_value_display = '-пусто-'
 
 
 @admin.register(FavoriteRecipe)
 class FavoriteRecipeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
+    list_display = ('user', 'recipe',)
     empty_value_display = '-пусто-'
 
 
 @admin.register(ShoppingCart)
 class SoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
+    list_display = ('user', 'recipe',)
     empty_value_display = '-пусто-'
