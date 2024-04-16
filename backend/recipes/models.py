@@ -75,8 +75,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         related_name='recipes',
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.CASCADE,
         verbose_name='Автор',
     )
     name = models.CharField(
@@ -105,10 +104,12 @@ class Recipe(models.Model):
         'Время приготовления',
         validators=[
             validators.MinValueValidator(
-                MIN_COOKING_TIME, message='Мин. время 1 минута'
+                MIN_COOKING_TIME,
+                message=f'Мин. время {MIN_COOKING_TIME} минута'
             ),
             validators.MaxValueValidator(
-                MAX_COOKING_TIME, message='Максим. время 360 минут'
+                MAX_COOKING_TIME,
+                message=f'Максим. время {MAX_COOKING_TIME} минут'
             ),
         ],
     )
@@ -141,11 +142,11 @@ class RecipeIngredient(models.Model):
         validators=(
             validators.MinValueValidator(
                 MIN_INGREDIENT_AMOUNT,
-                message='Мин. количество ингридиентов 1'
+                message=f'Мин. количество ингридиентов {MIN_INGREDIENT_AMOUNT}'
             ),
             validators.MaxValueValidator(
                 MAX_INGREDIENT_AMOUNT,
-                message='Максим. количество ингридиентов 100'
+                message=f'Максим. количество {MAX_INGREDIENT_AMOUNT}'
             ),
         ),
     )

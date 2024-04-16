@@ -11,7 +11,6 @@ from users.constants import (
 class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [
-        'id',
         'username',
         'first_name',
         'last_name',
@@ -59,7 +58,6 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
