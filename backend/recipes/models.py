@@ -4,13 +4,14 @@ from django.db import models
 from django.db.models import UniqueConstraint
 
 from recipes.constants import (
-    MAX_TAG_LENGTH,
-    MAX_INGREDIENT_LENGTH,
-    MAX_RECIPE_LENGTH,
     MAX_COOKING_TIME,
+    MAX_COLOR_TAG,
     MIN_COOKING_TIME,
-    MIN_INGREDIENT_AMOUNT,
     MAX_INGREDIENT_AMOUNT,
+    MAX_INGREDIENT_LENGTH,
+    MIN_INGREDIENT_AMOUNT,
+    MAX_RECIPE_LENGTH,
+    MAX_TAG_LENGTH,
 )
 
 User = get_user_model()
@@ -22,7 +23,7 @@ class Tag(models.Model):
     name = models.CharField('Имя', max_length=MAX_TAG_LENGTH, unique=True,)
     color = models.CharField(
         'Цвет',
-        max_length=7,
+        max_length=MAX_COLOR_TAG,
         validators=[
             validators.RegexValidator(
                 regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',

@@ -6,13 +6,9 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import filters, status
+from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import (
-    SAFE_METHODS,
-    IsAuthenticated,
-    AllowAny,
-)
+from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -42,23 +38,13 @@ from users.models import Subscribe
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class UserViewSet(UserViewSet):
     pagination_class = LimitPageNumberPagination
 
     def get_permissions(self):
         if self.action == 'me':
-            return [IsAuthenticated(), ]
-        return [AllowAny(), ]
-
-    # @action(
-    #     detail=False,
-    #     methods=['GET'],
-    #     permission_classes=[IsAuthenticated]
-    # )
-    # def me(self, request):
-    #     user = request.user
-    #     serializer = CustomUserSerializer(user)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+            return (IsAuthenticated(), )
+        return super().get_permissions()
 
     @action(
         detail=True,
@@ -75,18 +61,24 @@ class CustomUserViewSet(UserViewSet):
                                          context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        serializer = SubscribeUserSerializer(author)
+        serializer = SubscribeUserSerializer(request, author)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, **kwargs):
         author = get_object_or_404(User, id=self.kwargs.get('id'))
-        obj = Subscribe.objects.filter(user=request.user, author=author)
-        if obj:
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Подписка уже удалена!'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        obj = Subscribe.objects.filter(
+            user=request.user, author=author
+        ).delete()
+        if not obj[0]:
+            return Response(
+                {'errors': 'Подписка уже удалена!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'detail': 'Вы успешно подписались!'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=False,
@@ -108,7 +100,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend,)
     search_fields = ('^name',)
 
 
@@ -148,12 +140,16 @@ class RecipeViewSet(ModelViewSet):
     @staticmethod
     def deletion(model, user, pk):
         """Метод удаления."""
-        obj = model.objects.filter(user=user, recipe__id=pk)
-        if obj:
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже удален!'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        obj = model.objects.filter(user=user, recipe__id=pk).delete()
+        if not obj[0]:
+            return Response(
+                {'errors': 'Рецепт уже удален!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {'errors': 'Рецепт успешно удален!'},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=True,
@@ -223,4 +219,8 @@ class RecipeViewSet(ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit'
         ).annotate(amount=Sum('amount'))
-        return self.create_shopping_list()
+        self.create_shopping_list()
+        return Response(
+            {'detail': 'Список покупок загружен!'},
+            status=status.HTTP_200_OK
+        )
