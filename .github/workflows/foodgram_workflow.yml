@@ -51,6 +51,12 @@ jobs:
           context: ./frontend/
           push: true
           tags: doralog/foodgram_frontend:latest
+      - name: Push to DockerHub gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./gateway/
+          push: true
+          tags: doralog/foodgram_gateway:latest    
 
   deploy:
     runs-on: ubuntu-latest

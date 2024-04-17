@@ -4,11 +4,10 @@ volumes:
   pg_data:
   static:
   media:
-  static_frontend:
 
 services:
   db:
-    image: postgres:13.10
+    image: postgres:13
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -18,8 +17,8 @@ services:
     depends_on:
       - db
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static:/static
+      - media:/app/media
     restart: always
   frontend:
     image: doralog/foodgram_frontend
