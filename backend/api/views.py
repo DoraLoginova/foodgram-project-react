@@ -184,8 +184,17 @@ class RecipeViewSet(ModelViewSet):
         detail=False,
         permission_classes=[IsAuthenticated]
     )
-    def create_shopping_list(self, request):
+    def download_shopping_cart(self, request):
+        """Скачивание списка покупок с ингредиентами."""
         user = request.user
+        if not user.shopping_cart.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
         today = datetime.today()
         shopping_list = (
             f'Список покупок для: {user.get_full_name()}\n\n'
@@ -195,7 +204,7 @@ class RecipeViewSet(ModelViewSet):
             f'- {ingredient["ingredient__name"]}'
             f'({ingredient["ingredient__measurement_unit"]})'
             f' - {ingredient["amount"]}'
-            for ingredient in request.ingredients
+            for ingredient in ingredients
         ])
         shopping_list += f'\n\nFoodgram ({today:%Y})'
 
@@ -203,24 +212,3 @@ class RecipeViewSet(ModelViewSet):
         response = HttpResponse(shopping_list, content_type='text/plain')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response
-
-    @action(
-        detail=False,
-        permission_classes=[IsAuthenticated]
-    )
-    def download_shopping_cart(self, request):
-        """Скачивание списка покупок с ингредиентами."""
-        user = request.user
-        if not user.shopping_cart.exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        RecipeIngredient.objects.filter(
-            recipe__shopping_cart__user=request.user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit'
-        ).annotate(amount=Sum('amount'))
-        self.create_shopping_list()
-        return Response(
-            {'detail': 'Список покупок загружен!'},
-            status=status.HTTP_200_OK
-        )
