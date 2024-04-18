@@ -21,16 +21,15 @@ services:
       - db
   frontend:
     image: doralog/foodgram_frontend:latest
+    env_file: .env
+    command: cp -r /app/build/. /static/
     volumes:
-      - ../frontend/:/app/result_build/
+      - static:/static
   gateway:
-    image: doralog/foodgram_gateway
+    image: doralog/foodgram_nginx
     ports:
       - 10000:80  
     volumes:
-      # - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      # - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static
       - media:/app/media
     depends_on:
