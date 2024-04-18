@@ -1,21 +1,21 @@
-# import os
+import os
 from pathlib import Path
 
-# from django.core.management.utils import get_random_secret_key
-# from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
 
-# load_dotenv()
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
-SECRET_KEY = 'django-insecure-7c2%c3)3#jj933^8lm+)ji7!8mz70xael62+pe6yvr3$vz3yk-'
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
+# SECRET_KEY = 'django-insecure-7c2%c3)3#jj933^8lm+)ji7!8mz70xael62+pe6yvr3$vz3yk-'
+# DEBUG = True
 
-ALLOWED_HOSTS = []
-# DEBUG = os.getenv('DEBUG', 'False') == 'True'
+# ALLOWED_HOSTS = []
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -63,22 +63,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
-#         'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-#         'USER': os.getenv('POSTGRES_USER', 'postgres'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-#         'HOST': os.getenv('DB_HOST', ''),
-#         'PORT': os.getenv('DB_PORT', '5432'),
-#     }}
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', '5432'),
+    }}
 
 
 AUTH_PASSWORD_VALIDATORS = [
