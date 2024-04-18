@@ -22,14 +22,14 @@ services:
   frontend:
     image: doralog/foodgram_frontend:latest
     volumes:
-      - static:/static
+      - ../frontend/:/app/result_build/
   nginx:
     image: doralog/foodgram_gateway
     ports:
       - 8000:80  
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - ../frontend/build:/usr/share/nginx/html/
+      # - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static
       - media:/app/media
@@ -37,3 +37,4 @@ services:
       - backend
       - frontend
       - db  
+
