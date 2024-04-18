@@ -23,7 +23,7 @@ services:
     image: doralog/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
-  nginx:
+  gateway:
     image: doralog/foodgram_gateway
     ports:
       - 8000:80  
