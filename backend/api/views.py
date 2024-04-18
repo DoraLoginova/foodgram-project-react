@@ -101,7 +101,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     filterset_class = IngredientFilter
     filter_backends = (DjangoFilterBackend,)
-    search_fields = ('^name',)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
