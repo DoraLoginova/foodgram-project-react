@@ -16,6 +16,7 @@ from api.filters import IngredientFilter, RecipeFilter
 from api.pagination import LimitPageNumberPagination
 from api.permissions import IsAuthorOrReadOnly
 from api.serializers import (
+    CustomUserSerializer,
     IngredientSerializer,
     RecipeReadSerializer,
     RecipeWriteSerializer,
@@ -39,6 +40,10 @@ User = get_user_model()
 
 
 class UserViewSet(UserViewSet):
+    """Вьюсет для создания обьектов класса User."""
+
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
     pagination_class = LimitPageNumberPagination
 
     def get_permissions(self):
@@ -47,23 +52,49 @@ class UserViewSet(UserViewSet):
         return super().get_permissions()
 
     @action(
+        detail=False,
+        methods=['get', 'patch'],
+        url_path='me',
+        url_name='me',
+        permission_classes=(IsAuthenticated,)
+    )
+    def get_me(self, request):
+        """Позволяет получить подробную информацию о себе."""
+        if request.method == 'PATCH':
+            serializer = CustomUserSerializer(
+                request.user, data=request.data,
+                partial=True, context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = CustomUserSerializer(
+            request.user, context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
         detail=True,
         methods=['post'],
-        permission_classes=[IsAuthenticated]
+        url_path='subscribe',
+        url_name='subscribe',
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, **kwargs):
-        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        author_id = self.kwargs.get('id')
+        author = get_object_or_404(User, id=author_id)
         data = {
             'user': request.user.id,
-            'author': id
+            'author': author.id
         }
         serializer = SubscribeSerializer(data=data,
                                          context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        serializer = SubscribeUserSerializer(author,
-                                             context={'request': request},)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer_author = SubscribeUserSerializer(
+            author,
+            context={'request': request},)
+        return Response(serializer_author.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, **kwargs):
@@ -77,13 +108,14 @@ class UserViewSet(UserViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
-            {'detail': 'Вы успешно подписались!'},
             status=status.HTTP_204_NO_CONTENT
         )
 
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated]
+        url_path='subscriptions',
+        url_name='subscriptions',
+        permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         user = request.user
@@ -128,9 +160,10 @@ class RecipeViewSet(ModelViewSet):
     @staticmethod
     def addition(request, pk, serializers):
         """Метод добавления."""
+        recipe = get_object_or_404(Recipe, pk=pk)
         data = {
-            'user': request.user.pk,
-            'recipe': pk
+            'user': request.user.id,
+            'recipe': recipe.id
         }
         serializer = serializers(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -140,10 +173,10 @@ class RecipeViewSet(ModelViewSet):
     @staticmethod
     def deletion(model, user, pk):
         """Метод удаления."""
-        obj = model.objects.filter(user=user, recipe__id=pk).delete()
+        recipe = get_object_or_404(Recipe, pk=pk)
+        obj = model.objects.filter(user=user, recipe=recipe).delete()
         if not obj[0]:
             return Response(
-                {'errors': 'Рецепт уже удален!'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
@@ -154,6 +187,8 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
+        url_path='favorite',
+        url_name='favorite',
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
@@ -168,6 +203,8 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
+        url_path='shopping_cart',
+        url_name='shopping_cart',
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
@@ -182,7 +219,10 @@ class RecipeViewSet(ModelViewSet):
 
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated]
+        methods=['get'],
+        url_path='download_shopping_cart',
+        url_name='download_shopping_cart',
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
         """Скачивание списка покупок с ингредиентами."""

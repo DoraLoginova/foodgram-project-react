@@ -60,9 +60,10 @@ class SubscribeUserSerializer(CustomUserSerializer):
     recipes_count = serializers.ReadOnlyField(source='recipes.count')
     recipes = SerializerMethodField()
 
-    class Meta(CustomUserSerializer.Meta):
+    class Meta:
+        model = User
         fields = (
-            'id', 'username', 'first_name', 'last_name', 'email',
+            'email', 'id', 'username', 'first_name', 'last_name',
             'is_subscribed', 'recipes', 'recipes_count'
         )
 
@@ -70,16 +71,11 @@ class SubscribeUserSerializer(CustomUserSerializer):
         """Получение списка рецептов."""
         request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
         if limit:
-            recipes = recipes[:int(limit)]
-        serializer = SubscribeRecipeSerializer(
-            recipes, many=True, read_only=True
-        )
-        return serializer.data
-
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
+            recipes = obj.recipes.all()[:int(limit)]
+        else:
+            recipes = obj.recipes.all()
+        return SubscribeRecipeSerializer(recipes, many=True).data
 
 
 class SubscribeSerializer(serializers.ModelSerializer):
@@ -140,7 +136,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = IngredientInRecipeReadSerializer(
-        many=True, read_only=True, source='ingredients_amounts'
+        many=True, source='ingredients_amounts'
     )
     is_favorited = serializers.SerializerMethodField(read_only=True)
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
