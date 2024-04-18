@@ -61,7 +61,8 @@ class UserViewSet(UserViewSet):
                                          context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        serializer = SubscribeUserSerializer(request, author)
+        serializer = SubscribeUserSerializer(author,
+                                             context={'request': request},)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete

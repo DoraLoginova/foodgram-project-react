@@ -291,7 +291,7 @@ class ShoppingCartSerializer(SubscribeRecipeSerializer):
         fields = ('user', 'recipe',)
         validators = [
             UniqueTogetherValidator(
-                queryset=FavoriteRecipe.objects.all(),
+                queryset=ShoppingCart.objects.all(),
                 fields=('user', 'recipe'),
                 message='Рецепт уже есть в списке покупок.'
             )
