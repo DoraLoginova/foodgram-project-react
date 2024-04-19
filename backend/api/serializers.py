@@ -8,6 +8,7 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.validators import UniqueTogetherValidator
 
 from api.fields import Base64ImageField
+from foodgram.settings import RECIPES_LIMIT
 from recipes.models import (
     Ingredient,
     Recipe,
@@ -44,7 +45,7 @@ class CustomUserSerializer(UserSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+        fields = ('id', 'username', 'first_name', 'last_name', 'email',
                   'is_subscribed')
 
     def get_is_subscribed(self, obj):
@@ -63,18 +64,13 @@ class SubscribeUserSerializer(CustomUserSerializer):
     class Meta:
         model = User
         fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
+            'id', 'username', 'first_name', 'last_name', 'email',
             'is_subscribed', 'recipes', 'recipes_count'
         )
 
     def get_recipes(self, obj):
         """Получение списка рецептов."""
-        request = self.context.get('request')
-        limit = request.GET.get('recipes_limit')
-        if limit:
-            recipes = obj.recipes.all()[:int(limit)]
-        else:
-            recipes = obj.recipes.all()
+        recipes = obj.recipes.all()[:RECIPES_LIMIT]
         return SubscribeRecipeSerializer(recipes, many=True).data
 
 

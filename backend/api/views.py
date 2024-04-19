@@ -115,15 +115,17 @@ class UserViewSet(UserViewSet):
         detail=False,
         url_path='subscriptions',
         url_name='subscriptions',
+        methods=['get'],
         permission_classes=(IsAuthenticated,)
     )
     def subscriptions(self, request):
         user = request.user
-        queryset = User.objects.filter(subscribing__user=user)
+        queryset = User.objects.filter(
+            subscribing__user=user
+        ).prefetch_related('recipes')
         pages = self.paginate_queryset(queryset)
-        serializer = SubscribeSerializer(pages,
-                                         many=True,
-                                         context={'request': request})
+        serializer = SubscribeUserSerializer(
+            pages, many=True)
         return self.get_paginated_response(serializer.data)
 
 
